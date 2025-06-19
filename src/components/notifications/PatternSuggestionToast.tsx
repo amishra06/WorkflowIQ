@@ -22,11 +22,18 @@ const PatternSuggestionToast: React.FC<PatternSuggestionToastProps> = ({
   const [timeLeft, setTimeLeft] = useState(30); // 30 seconds auto-dismiss
 
   useEffect(() => {
+    // Add null check for onDismiss
+    if (typeof onDismiss !== 'function') return;
+
     const timer = setInterval(() => {
       setTimeLeft(prev => {
         if (prev <= 1) {
           setIsVisible(false);
-          setTimeout(onDismiss, 300); // Wait for animation
+          setTimeout(() => {
+            if (typeof onDismiss === 'function') {
+              onDismiss();
+            }
+          }, 300); // Wait for animation
           return 0;
         }
         return prev - 1;
@@ -37,20 +44,44 @@ const PatternSuggestionToast: React.FC<PatternSuggestionToastProps> = ({
   }, [onDismiss]);
 
   const handleAccept = async () => {
-    await onAccept();
-    setIsVisible(false);
-    setTimeout(onDismiss, 300);
+    if (typeof onAccept === 'function') {
+      try {
+        await onAccept();
+        setIsVisible(false);
+        setTimeout(() => {
+          if (typeof onDismiss === 'function') {
+            onDismiss();
+          }
+        }, 300);
+      } catch (error) {
+        console.error('Error accepting pattern:', error);
+      }
+    }
   };
 
   const handleReject = async () => {
-    await onReject();
-    setIsVisible(false);
-    setTimeout(onDismiss, 300);
+    if (typeof onReject === 'function') {
+      try {
+        await onReject();
+        setIsVisible(false);
+        setTimeout(() => {
+          if (typeof onDismiss === 'function') {
+            onDismiss();
+          }
+        }, 300);
+      } catch (error) {
+        console.error('Error rejecting pattern:', error);
+      }
+    }
   };
 
   const handleDismiss = () => {
     setIsVisible(false);
-    setTimeout(onDismiss, 300);
+    setTimeout(() => {
+      if (typeof onDismiss === 'function') {
+        onDismiss();
+      }
+    }, 300);
   };
 
   const getPatternIcon = (patternType: string) => {
@@ -79,6 +110,11 @@ const PatternSuggestionToast: React.FC<PatternSuggestionToastProps> = ({
     }
   };
 
+  // Add null check for pattern object
+  if (!pattern || !pattern.patternType) {
+    return null;
+  }
+
   return (
     <AnimatePresence>
       {isVisible && (
@@ -99,7 +135,7 @@ const PatternSuggestionToast: React.FC<PatternSuggestionToastProps> = ({
                     New Automation Opportunity
                   </h3>
                   <p className="text-xs text-gray-500">
-                    {(pattern.confidence * 100).toFixed(0)}% confidence
+                    {pattern.confidence ? (pattern.confidence * 100).toFixed(0) : '0'}% confidence
                   </p>
                 </div>
               </div>
@@ -118,20 +154,22 @@ const PatternSuggestionToast: React.FC<PatternSuggestionToastProps> = ({
             <div className="mb-4">
               <p className="text-sm text-gray-700 mb-2">
                 We detected a <strong>{pattern.patternType.replace('-', ' ')}</strong> pattern 
-                that could save you <strong>{pattern.prediction.potentialTimeSaving} minutes per week</strong>.
+                that could save you <strong>
+                  {pattern.prediction?.potentialTimeSaving || 'some'} minutes per week
+                </strong>.
               </p>
               
               <div className="bg-white/70 rounded-md p-2 text-xs text-gray-600">
                 <div className="flex justify-between items-center">
                   <span>Complexity:</span>
                   <span className={`px-2 py-1 rounded text-xs font-medium ${
-                    pattern.prediction.implementationComplexity === 'low' 
+                    (pattern.prediction?.implementationComplexity || 'medium') === 'low' 
                       ? 'bg-success-100 text-success-700'
-                      : pattern.prediction.implementationComplexity === 'medium'
+                      : (pattern.prediction?.implementationComplexity || 'medium') === 'medium'
                       ? 'bg-warning-100 text-warning-700'
                       : 'bg-danger-100 text-danger-700'
                   }`}>
-                    {pattern.prediction.implementationComplexity}
+                    {pattern.prediction?.implementationComplexity || 'medium'}
                   </span>
                 </div>
               </div>
@@ -185,28 +223,48 @@ const PatternSuggestionManager: React.FC<PatternSuggestionManagerProps> = () => 
 
   useEffect(() => {
     // Enhanced null checking to ensure both user and organizationId exist
-    if (!user || !user.organizationId) return;
+    if (!user?.organizationId) {
+      console.log('User or organizationId not available yet');
+      return;
+    }
 
-    const unsubscribe = realTimeDetection.subscribeToPatternSuggestions(
-      user.organizationId,
-      (pattern) => {
-        setActivePatterns(prev => [...prev, pattern]);
+    let unsubscribe: (() => void) | undefined;
+
+    try {
+      unsubscribe = realTimeDetection.subscribeToPatternSuggestions(
+        user.organizationId,
+        (pattern) => {
+          // Additional null check for the pattern
+          if (pattern && pattern.id) {
+            setActivePatterns(prev => [...prev, pattern]);
+          }
+        }
+      );
+    } catch (error) {
+      console.error('Error subscribing to pattern suggestions:', error);
+    }
+
+    return () => {
+      if (unsubscribe && typeof unsubscribe === 'function') {
+        unsubscribe();
       }
-    );
-
-    return unsubscribe;
-  }, [user]);
+    };
+  }, [user?.organizationId]); // Use optional chaining in dependency array
 
   const handleDismiss = (patternId: string) => {
-    setActivePatterns(prev => prev.filter(p => p.id !== patternId));
+    if (!patternId) return;
+    setActivePatterns(prev => prev.filter(p => p?.id !== patternId));
   };
 
   const handleAccept = async (pattern: RealTimePattern) => {
-    if (!user || !user.id) return;
+    if (!user?.id || !pattern?.id) {
+      console.error('User ID or pattern ID is missing');
+      return;
+    }
     
     try {
       await realTimeDetection.acceptSuggestion(pattern.id, user.id);
-      setActivePatterns(prev => prev.filter(p => p.id !== pattern.id));
+      setActivePatterns(prev => prev.filter(p => p?.id !== pattern.id));
       
       // Here you could also trigger workflow creation
       console.log('Creating workflow from pattern:', pattern);
@@ -216,7 +274,10 @@ const PatternSuggestionManager: React.FC<PatternSuggestionManagerProps> = () => 
   };
 
   const handleReject = async (pattern: RealTimePattern) => {
-    if (!user || !user.id) return;
+    if (!user?.id || !pattern?.id) {
+      console.error('User ID or pattern ID is missing');
+      return;
+    }
     
     try {
       await realTimeDetection.rejectSuggestion(
@@ -224,16 +285,21 @@ const PatternSuggestionManager: React.FC<PatternSuggestionManagerProps> = () => 
         user.id, 
         'User dismissed the suggestion'
       );
-      setActivePatterns(prev => prev.filter(p => p.id !== pattern.id));
+      setActivePatterns(prev => prev.filter(p => p?.id !== pattern.id));
     } catch (error) {
       console.error('Failed to reject suggestion:', error);
     }
   };
 
+  // Don't render anything if user is not loaded
+  if (!user) {
+    return null;
+  }
+
   return (
     <div className="fixed bottom-0 right-0 z-50 pointer-events-none">
       <div className="space-y-2 p-4 pointer-events-auto">
-        {activePatterns.map((pattern, index) => (
+        {activePatterns.filter(pattern => pattern && pattern.id).map((pattern, index) => (
           <motion.div
             key={pattern.id}
             initial={{ opacity: 0, y: 50 }}
