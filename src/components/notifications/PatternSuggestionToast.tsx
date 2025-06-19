@@ -229,24 +229,47 @@ const PatternSuggestionManager: React.FC<PatternSuggestionManagerProps> = () => 
     }
 
     let unsubscribe: (() => void) | undefined;
+    let isSubscribed = false;
 
-    try {
-      unsubscribe = realTimeDetection.subscribeToPatternSuggestions(
-        user.organizationId,
-        (pattern) => {
-          // Additional null check for the pattern
-          if (pattern && pattern.id) {
-            setActivePatterns(prev => [...prev, pattern]);
+    const subscribeToPatterns = async () => {
+      try {
+        // Add a small delay to prevent rapid re-subscriptions
+        await new Promise(resolve => setTimeout(resolve, 100));
+        
+        if (isSubscribed) return; // Prevent double subscription
+        
+        unsubscribe = realTimeDetection.subscribeToPatternSuggestions(
+          user.organizationId,
+          (pattern) => {
+            // Additional null check for the pattern
+            if (pattern && pattern.id) {
+              setActivePatterns(prev => {
+                // Prevent duplicate patterns
+                const exists = prev.some(p => p.id === pattern.id);
+                if (exists) return prev;
+                return [...prev, pattern];
+              });
+            }
           }
-        }
-      );
-    } catch (error) {
-      console.error('Error subscribing to pattern suggestions:', error);
-    }
+        );
+        isSubscribed = true;
+      } catch (error) {
+        console.error('Error subscribing to pattern suggestions:', error);
+        // Reset subscription state on error
+        isSubscribed = false;
+      }
+    };
+
+    subscribeToPatterns();
 
     return () => {
+      isSubscribed = false;
       if (unsubscribe && typeof unsubscribe === 'function') {
-        unsubscribe();
+        try {
+          unsubscribe();
+        } catch (error) {
+          console.error('Error unsubscribing:', error);
+        }
       }
     };
   }, [user?.organizationId]); // Use optional chaining in dependency array
