@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, CheckCircle, XCircle, Clock, Zap, TrendingUp } from 'lucide-react';
 import Button from '../common/Button';
@@ -220,6 +220,11 @@ interface PatternSuggestionManagerProps {}
 const PatternSuggestionManager: React.FC<PatternSuggestionManagerProps> = () => {
   const { user } = useAuth();
   const [activePatterns, setActivePatterns] = useState<RealTimePattern[]>([]);
+  
+  // Use refs to persist subscription state across re-renders
+  const isSubscribedRef = useRef(false);
+  const unsubscribeRef = useRef<(() => void) | null>(null);
+  const currentOrgIdRef = useRef<string | null>(null);
 
   useEffect(() => {
     // Enhanced null checking to ensure both user and organizationId exist
@@ -228,17 +233,33 @@ const PatternSuggestionManager: React.FC<PatternSuggestionManagerProps> = () => 
       return;
     }
 
-    let unsubscribe: (() => void) | undefined;
-    let isSubscribed = false;
+    // Check if we're already subscribed to this organization
+    if (isSubscribedRef.current && currentOrgIdRef.current === user.organizationId) {
+      return;
+    }
+
+    // Clean up previous subscription if organization changed
+    if (unsubscribeRef.current && currentOrgIdRef.current !== user.organizationId) {
+      try {
+        unsubscribeRef.current();
+        unsubscribeRef.current = null;
+        isSubscribedRef.current = false;
+      } catch (error) {
+        console.error('Error cleaning up previous subscription:', error);
+      }
+    }
 
     const subscribeToPatterns = async () => {
       try {
+        // Prevent multiple subscriptions
+        if (isSubscribedRef.current) {
+          return;
+        }
+
         // Add a small delay to prevent rapid re-subscriptions
         await new Promise(resolve => setTimeout(resolve, 100));
         
-        if (isSubscribed) return; // Prevent double subscription
-        
-        unsubscribe = realTimeDetection.subscribeToPatternSuggestions(
+        const unsubscribe = realTimeDetection.subscribeToPatternSuggestions(
           user.organizationId,
           (pattern) => {
             // Additional null check for the pattern
@@ -252,25 +273,35 @@ const PatternSuggestionManager: React.FC<PatternSuggestionManagerProps> = () => 
             }
           }
         );
-        isSubscribed = true;
+        
+        // Store the unsubscribe function and mark as subscribed
+        unsubscribeRef.current = unsubscribe;
+        isSubscribedRef.current = true;
+        currentOrgIdRef.current = user.organizationId;
+        
       } catch (error) {
         console.error('Error subscribing to pattern suggestions:', error);
         // Reset subscription state on error
-        isSubscribed = false;
+        isSubscribedRef.current = false;
+        unsubscribeRef.current = null;
+        currentOrgIdRef.current = null;
       }
     };
 
     subscribeToPatterns();
 
     return () => {
-      isSubscribed = false;
-      if (unsubscribe && typeof unsubscribe === 'function') {
+      // Cleanup function
+      if (unsubscribeRef.current && typeof unsubscribeRef.current === 'function') {
         try {
-          unsubscribe();
+          unsubscribeRef.current();
         } catch (error) {
           console.error('Error unsubscribing:', error);
         }
       }
+      unsubscribeRef.current = null;
+      isSubscribedRef.current = false;
+      currentOrgIdRef.current = null;
     };
   }, [user?.organizationId]); // Use optional chaining in dependency array
 
