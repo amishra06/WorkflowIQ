@@ -12,6 +12,7 @@ import PricingPage from './pages/PricingPage';
 import CustomersPage from './pages/CustomersPage';
 import ResourcesPage from './pages/ResourcesPage';
 import ROICalculatorPage from './pages/ROICalculatorPage';
+import SettingsPage from './pages/SettingsPage';
 import DashboardLayout from './layouts/DashboardLayout';
 import PatternSuggestionManager from './components/notifications/PatternSuggestionToast';
 
@@ -65,10 +66,10 @@ function App() {
             <Route path="/workflows" element={<WorkflowsPage />} />
             <Route path="/integrations" element={<IntegrationsPage />} />
             <Route path="/analytics" element={<AnalyticsPage />} />
-            <Route path="/settings" element={<div className="p-4">Settings Page</div>} />
+            <Route path="/settings" element={<SettingsPage />} />
           </Route>
           
-          <Route path="*" element={<Navigate to="/\" replace />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Router>
     </AuthProvider>
