@@ -483,49 +483,49 @@ export class RealTimeDetectionService {
     }
   }
 
- 
-subscribeToPatternSuggestions(
-  organizationId: string,
-  callback: (pattern: RealTimePattern) => void
-): () => void {
-  const channelName = `patterns-${organizationId}`;
-  
-  // Check if subscription already exists
-  if (this.activeSubscriptions.has(channelName)) {
-    console.log(`Subscription already exists for ${channelName}, cleaning up old one`);
-    const existingChannel = this.activeSubscriptions.get(channelName);
-    supabase.removeChannel(existingChannel);
-    this.activeSubscriptions.delete(channelName);
+  subscribeToPatternSuggestions(
+    organizationId: string,
+    callback: (pattern: RealTimePattern) => void
+  ): () => void {
+    const channelName = `patterns-${organizationId}`;
+    
+    // Check if subscription already exists
+    if (this.activeSubscriptions.has(channelName)) {
+      console.log(`Subscription already exists for ${channelName}, cleaning up old one`);
+      const existingChannel = this.activeSubscriptions.get(channelName);
+      supabase.removeChannel(existingChannel);
+      this.activeSubscriptions.delete(channelName);
+    }
+    
+    console.log(`Creating new subscription for ${channelName}`);
+    
+    const channel = supabase.channel(channelName);
+    
+    channel
+      .on('broadcast', { event: 'pattern_suggestion' }, ({ payload }) => {
+        console.log('Received pattern suggestion broadcast:', payload);
+        if (payload.organizationId === organizationId) {
+          callback(payload.pattern);
+        }
+      })
+      .subscribe((status: string) => {
+        console.log(`Subscription status for ${channelName}:`, status);
+      });
+
+    // Store the channel reference
+    this.activeSubscriptions.set(channelName, channel);
+
+    // Return cleanup function
+    return () => {
+      console.log(`Cleaning up subscription for ${channelName}`);
+      
+      // Remove from Supabase
+      supabase.removeChannel(channel);
+      
+      // Remove from our tracking
+      this.activeSubscriptions.delete(channelName);
+    };
   }
-  
-  console.log(`Creating new subscription for ${channelName}`);
-  
-  const channel = supabase.channel(channelName);
-  
-  channel
-    .on('broadcast', { event: 'pattern_suggestion' }, ({ payload }) => {
-      console.log('Received pattern suggestion broadcast:', payload);
-      if (payload.organizationId === organizationId) {
-        callback(payload.pattern);
-      }
-    })
-    .subscribe((status: string) => {
-      console.log(`Subscription status for ${channelName}:`, status);
-    });
-
-  // Store the channel reference
-  this.activeSubscriptions.set(channelName, channel);
-
-  // Return cleanup function
-  return () => {
-    console.log(`Cleaning up subscription for ${channelName}`);
-    
-    // Remove from Supabase
-    supabase.removeChannel(channel);
-    
-    // Remove from our tracking
-    this.activeSubscriptions.delete(channelName);
-  };
 }
 
 export const realTimeDetection = RealTimeDetectionService.getInstance();
