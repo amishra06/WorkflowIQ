@@ -19,6 +19,7 @@ export class RealTimeDetectionService {
   private activityBuffer: Map<string, ActivityContext[]> = new Map();
   private detectionQueue: Map<string, NodeJS.Timeout> = new Map();
   private realtimeChannel: any;
+  private activeSubscriptions: Map<string, any> = new Map();
   
   private readonly BUFFER_SIZE = 50;
   private readonly DETECTION_INTERVAL = 30000; // 30 seconds
