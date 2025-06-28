@@ -12,7 +12,8 @@ import {
   Code,
   Zap,
   Settings,
-  Mail
+  Mail,
+  BarChart
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import Button from '../components/common/Button';
