@@ -207,7 +207,11 @@ const ResourcesPage: React.FC = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {resources.documentation.map((item, index) => (
-            <Card key={index} className="hover:shadow-md transition-shadow cursor-pointer" onClick={item.link}>
+            <Card 
+              key={index} 
+              className="hover:shadow-md transition-all duration-200 cursor-pointer hover:scale-[1.02] border-2 hover:border-primary-300" 
+              onClick={item.link}
+            >
               <div className="p-6">
                 <div className="w-12 h-12 rounded-lg bg-primary-100 flex items-center justify-center text-primary-600 mb-4">
                   {item.icon}
@@ -239,7 +243,7 @@ const ResourcesPage: React.FC = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {resources.tutorials.map((tutorial, index) => (
-            <Card key={index} className="overflow-hidden hover:shadow-lg transition-shadow">
+            <Card key={index} className="overflow-hidden hover:shadow-lg transition-all duration-200 cursor-pointer hover:scale-[1.02]">
               <div className="aspect-video relative cursor-pointer" onClick={() => handleVideoPlay(tutorial.videoUrl)}>
                 <img
                   src={tutorial.thumbnail}
@@ -296,7 +300,7 @@ const ResourcesPage: React.FC = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
           {resources.templates.slice(0, 6).map((template) => (
-            <Card key={template.id} className="hover:shadow-lg transition-shadow">
+            <Card key={template.id} className="hover:shadow-lg transition-all duration-200 cursor-pointer hover:scale-[1.02] border-2 hover:border-primary-300">
               <div className="p-6">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="font-bold text-gray-900">
@@ -373,7 +377,7 @@ const ResourcesPage: React.FC = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <Card className="text-center hover:shadow-md transition-shadow cursor-pointer" onClick={() => navigate('/workflows')}>
+          <Card className="text-center hover:shadow-md transition-all duration-200 cursor-pointer hover:scale-[1.02] border-2 hover:border-primary-300" onClick={() => navigate('/workflows')}>
             <div className="p-6">
               <div className="w-12 h-12 rounded-lg bg-primary-100 flex items-center justify-center text-primary-600 mx-auto mb-4">
                 <Zap size={24} />
@@ -383,7 +387,7 @@ const ResourcesPage: React.FC = () => {
             </div>
           </Card>
 
-          <Card className="text-center hover:shadow-md transition-shadow cursor-pointer" onClick={() => navigate('/integrations')}>
+          <Card className="text-center hover:shadow-md transition-all duration-200 cursor-pointer hover:scale-[1.02] border-2 hover:border-primary-300" onClick={() => navigate('/integrations')}>
             <div className="p-6">
               <div className="w-12 h-12 rounded-lg bg-success-100 flex items-center justify-center text-success-600 mx-auto mb-4">
                 <Settings size={24} />
@@ -393,7 +397,7 @@ const ResourcesPage: React.FC = () => {
             </div>
           </Card>
 
-          <Card className="text-center hover:shadow-md transition-shadow cursor-pointer" onClick={() => navigate('/analytics')}>
+          <Card className="text-center hover:shadow-md transition-all duration-200 cursor-pointer hover:scale-[1.02] border-2 hover:border-primary-300" onClick={() => navigate('/analytics')}>
             <div className="p-6">
               <div className="w-12 h-12 rounded-lg bg-warning-100 flex items-center justify-center text-warning-600 mx-auto mb-4">
                 <BarChart size={24} />
@@ -403,7 +407,7 @@ const ResourcesPage: React.FC = () => {
             </div>
           </Card>
 
-          <Card className="text-center hover:shadow-md transition-shadow cursor-pointer" onClick={() => window.open('mailto:support@workflowiq.com')}>
+          <Card className="text-center hover:shadow-md transition-all duration-200 cursor-pointer hover:scale-[1.02] border-2 hover:border-primary-300" onClick={() => window.open('mailto:support@workflowiq.com')}>
             <div className="p-6">
               <div className="w-12 h-12 rounded-lg bg-info-100 flex items-center justify-center text-info-600 mx-auto mb-4">
                 <Mail size={24} />

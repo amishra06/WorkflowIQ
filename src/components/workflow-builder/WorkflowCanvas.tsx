@@ -149,7 +149,13 @@ const WorkflowCanvas: React.FC = () => {
   );
 
   const onNodeClick = useCallback((event: React.MouseEvent, node: Node) => {
+    event.stopPropagation();
     setSelectedNode(node.id);
+  }, []);
+
+  // Clear selection when clicking on canvas
+  const onPaneClick = useCallback(() => {
+    setSelectedNode(null);
   }, []);
 
   const deleteSelectedNode = useCallback(() => {
@@ -191,6 +197,9 @@ const WorkflowCanvas: React.FC = () => {
     // Here you would typically trigger a test execution
   };
 
+  // Get selected node data for properties panel
+  const selectedNodeData = selectedNode ? nodes.find(n => n.id === selectedNode) : null;
+
   return (
     <div className="h-full flex flex-col">
       <div className="border-b border-gray-200 bg-white p-4 flex justify-between items-center">
@@ -210,6 +219,7 @@ const WorkflowCanvas: React.FC = () => {
               size="sm" 
               icon={<Trash2 size={16} />}
               onClick={deleteSelectedNode}
+              className="bg-red-500 hover:bg-red-600 text-white"
             >
               Delete Node
             </Button>
@@ -267,6 +277,7 @@ const WorkflowCanvas: React.FC = () => {
             onEdgesChange={onEdgesChange}
             onConnect={onConnect}
             onNodeClick={onNodeClick}
+            onPaneClick={onPaneClick}
             nodeTypes={nodeTypes}
             fitView
             className="bg-gray-50"
@@ -280,7 +291,7 @@ const WorkflowCanvas: React.FC = () => {
         <div className="w-72 bg-gray-50 border-l border-gray-200 p-4 overflow-y-auto">
           <h3 className="font-medium text-gray-900 mb-4">Properties</h3>
 
-          {selectedNode ? (
+          {selectedNodeData ? (
             <div>
               <Card className="mb-4">
                 <div className="p-4">
@@ -293,7 +304,8 @@ const WorkflowCanvas: React.FC = () => {
                       <input
                         type="text"
                         className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-primary-500"
-                        defaultValue={nodes.find(n => n.id === selectedNode)?.data.label || ''}
+                        defaultValue={selectedNodeData.data.label || ''}
+                        placeholder="Enter node name"
                       />
                     </div>
                     <div>
@@ -306,16 +318,38 @@ const WorkflowCanvas: React.FC = () => {
                         placeholder="Enter node description..."
                       />
                     </div>
+                    <div>
+                      <label className="block text-xs font-medium text-gray-700 mb-1">
+                        Node Type
+                      </label>
+                      <div className="text-sm text-gray-600 bg-gray-100 px-2 py-1 rounded">
+                        {selectedNodeData.data.type || 'Unknown'}
+                      </div>
+                    </div>
                   </div>
                 </div>
               </Card>
 
-              <Card>
+              <Card className="mb-4">
                 <div className="p-4">
-                  <h4 className="font-medium text-sm mb-3">Testing</h4>
-                  <Button size="sm" variant="outline" fullWidth>
-                    Run This Step
-                  </Button>
+                  <h4 className="font-medium text-sm mb-3">Actions</h4>
+                  <div className="space-y-2">
+                    <Button size="sm" variant="outline" fullWidth>
+                      Configure Settings
+                    </Button>
+                    <Button size="sm" variant="outline" fullWidth>
+                      Test This Node
+                    </Button>
+                    <Button 
+                      size="sm" 
+                      variant="danger" 
+                      fullWidth
+                      icon={<Trash2 size={14} />}
+                      onClick={deleteSelectedNode}
+                    >
+                      Delete Node
+                    </Button>
+                  </div>
                 </div>
               </Card>
             </div>
@@ -324,9 +358,9 @@ const WorkflowCanvas: React.FC = () => {
               <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 mx-auto mb-3">
                 <Plus size={24} />
               </div>
-              <h4 className="text-gray-900 font-medium mb-1">No Step Selected</h4>
+              <h4 className="text-gray-900 font-medium mb-1">No Node Selected</h4>
               <p className="text-sm text-gray-500">
-                Drag nodes from the left panel or select an existing node to view and edit its properties
+                Click on a node in the canvas to view and edit its properties, or drag nodes from the left panel to add them to your workflow.
               </p>
             </div>
           )}
