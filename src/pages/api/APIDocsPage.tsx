@@ -7,6 +7,8 @@ import Button from '../../components/common/Button';
 import Navbar from '../../components/landing/Navbar';
 
 const APIDocsPage: React.FC = () => {
+  console.log('🔍 APIDocsPage component rendered');
+  
   const navigate = useNavigate();
   const [activeEndpoint, setActiveEndpoint] = useState('workflows');
 
@@ -131,7 +133,10 @@ const APIDocsPage: React.FC = () => {
           <div className="mb-6">
             <Button
               variant="ghost"
-              onClick={() => navigate('/resources')}
+              onClick={() => {
+                console.log('🔍 APIDocsPage - Back to Resources clicked');
+                navigate('/resources');
+              }}
               icon={<ArrowLeft size={16} />}
             >
               Back to Resources

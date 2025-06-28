@@ -33,21 +33,30 @@ const ResourcesPage: React.FC = () => {
         title: 'Getting Started Guide',
         description: 'Learn the basics of WorkflowIQ and set up your first automation',
         icon: <BookOpen size={24} />,
-        link: () => setActiveSection('docs'),
+        link: () => {
+          console.log('🔍 Getting Started Guide clicked - setting activeSection to docs');
+          setActiveSection('docs');
+        },
         isInternal: true,
       },
       {
         title: 'API Documentation',
         description: 'Detailed API reference for developers',
         icon: <FileText size={24} />,
-        link: () => navigate('/api-docs'),
+        link: () => {
+          console.log('🔍 API Documentation clicked - navigating to /api-docs');
+          navigate('/api-docs');
+        },
         isInternal: true,
       },
       {
         title: 'Integration Guides',
         description: 'Connect WorkflowIQ with your favorite tools',
         icon: <Users size={24} />,
-        link: () => navigate('/integrations'),
+        link: () => {
+          console.log('🔍 Integration Guides clicked - navigating to /integrations');
+          navigate('/integrations');
+        },
         isInternal: true,
       },
     ],
@@ -210,7 +219,10 @@ const ResourcesPage: React.FC = () => {
             <Card 
               key={index} 
               className="hover:shadow-md transition-all duration-200 cursor-pointer hover:scale-[1.02] border-2 hover:border-primary-300" 
-              onClick={item.link}
+              onClick={() => {
+                console.log(`🔍 Card clicked for: ${item.title}`);
+                item.link();
+              }}
             >
               <div className="p-6">
                 <div className="w-12 h-12 rounded-lg bg-primary-100 flex items-center justify-center text-primary-600 mb-4">
@@ -421,6 +433,8 @@ const ResourcesPage: React.FC = () => {
     </div>
   );
 
+  console.log('🔍 ResourcesPage rendering with activeSection:', activeSection);
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Helmet>
@@ -452,7 +466,10 @@ const ResourcesPage: React.FC = () => {
               <div className="mb-6">
                 <Button
                   variant="ghost"
-                  onClick={() => setActiveSection('overview')}
+                  onClick={() => {
+                    console.log('🔍 Back to Resources clicked - setting activeSection to overview');
+                    setActiveSection('overview');
+                  }}
                   icon={<ArrowRight size={16} className="rotate-180" />}
                 >
                   Back to Resources
@@ -467,7 +484,10 @@ const ResourcesPage: React.FC = () => {
               <div className="mb-6">
                 <Button
                   variant="ghost"
-                  onClick={() => setActiveSection('overview')}
+                  onClick={() => {
+                    console.log('🔍 Back to Resources clicked - setting activeSection to overview');
+                    setActiveSection('overview');
+                  }}
                   icon={<ArrowRight size={16} className="rotate-180" />}
                 >
                   Back to Resources

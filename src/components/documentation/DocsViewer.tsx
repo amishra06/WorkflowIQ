@@ -9,6 +9,8 @@ interface DocsViewerProps {
 }
 
 const DocsViewer: React.FC<DocsViewerProps> = ({ section = 'getting-started' }) => {
+  console.log('🔍 DocsViewer component rendered with section:', section);
+  
   const [searchQuery, setSearchQuery] = useState('');
   const [activeSection, setActiveSection] = useState(section);
 
@@ -107,7 +109,10 @@ Learn how to securely authenticate with different services.
                   ? 'bg-primary-50 text-primary-700'
                   : 'text-gray-600 hover:bg-gray-50'
               }`}
-              onClick={() => setActiveSection(key)}
+              onClick={() => {
+                console.log('🔍 DocsViewer section changed to:', key);
+                setActiveSection(key);
+              }}
             >
               <div className="flex items-center">
                 <Book size={16} className="mr-2" />

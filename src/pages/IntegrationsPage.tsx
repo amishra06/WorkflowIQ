@@ -3,6 +3,8 @@ import { Helmet } from 'react-helmet';
 import IntegrationList from '../components/integrations/IntegrationList';
 
 const IntegrationsPage: React.FC = () => {
+  console.log('🔍 IntegrationsPage component rendered');
+  
   return (
     <>
       <Helmet>
