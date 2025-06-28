@@ -34,6 +34,7 @@ import {
   Plus,
   Save,
   PlayCircle,
+  Settings,
 } from 'lucide-react';
 import Button from '../common/Button';
 import Card from '../common/Card';
@@ -102,6 +103,8 @@ const WorkflowCanvas: React.FC = () => {
     label: string;
     icon: React.ReactNode;
   } | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isTestRunning, setIsTestRunning] = useState(false);
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const { screenToFlowPosition } = useReactFlow();
 
@@ -181,20 +184,68 @@ const WorkflowCanvas: React.FC = () => {
     ],
   };
 
-  const handleSave = () => {
-    const workflowData = {
-      nodes,
-      edges,
-      name: 'Email to Task Automation',
-      description: 'Convert client emails to tasks automatically'
-    };
-    console.log('Saving workflow:', workflowData);
-    // Here you would typically save to your backend
+  const handleSave = async () => {
+    setIsSaving(true);
+    try {
+      const workflowData = {
+        nodes,
+        edges,
+        name: 'Email to Task Automation',
+        description: 'Convert client emails to tasks automatically'
+      };
+      console.log('Saving workflow:', workflowData);
+      
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Show success message (you could add a toast notification here)
+      alert('Workflow saved successfully!');
+    } catch (error) {
+      console.error('Failed to save workflow:', error);
+      alert('Failed to save workflow. Please try again.');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
-  const handleTestRun = () => {
-    console.log('Running test with nodes:', nodes, 'and edges:', edges);
-    // Here you would typically trigger a test execution
+  const handleTestRun = async () => {
+    if (nodes.length === 0) {
+      alert('Please add some nodes to test the workflow.');
+      return;
+    }
+
+    setIsTestRunning(true);
+    try {
+      console.log('Running test with nodes:', nodes, 'and edges:', edges);
+      
+      // Simulate test execution
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      // Show test results
+      alert('Test run completed successfully! Check the console for details.');
+    } catch (error) {
+      console.error('Test run failed:', error);
+      alert('Test run failed. Please check your workflow configuration.');
+    } finally {
+      setIsTestRunning(false);
+    }
+  };
+
+  const handleNodeConfigure = () => {
+    if (selectedNode) {
+      alert(`Configure settings for node: ${selectedNode}`);
+      // Here you would open a configuration modal or panel
+    }
+  };
+
+  const handleNodeTest = async () => {
+    if (selectedNode) {
+      const node = nodes.find(n => n.id === selectedNode);
+      if (node) {
+        alert(`Testing node: ${node.data.label}`);
+        // Here you would test the individual node
+      }
+    }
   };
 
   // Get selected node data for properties panel
@@ -224,11 +275,24 @@ const WorkflowCanvas: React.FC = () => {
               Delete Node
             </Button>
           )}
-          <Button variant="outline" size="sm" icon={<Save size={16} />} onClick={handleSave}>
-            Save
+          <Button 
+            variant="outline" 
+            size="sm" 
+            icon={<Save size={16} />} 
+            onClick={handleSave}
+            loading={isSaving}
+            disabled={isSaving}
+          >
+            {isSaving ? 'Saving...' : 'Save'}
           </Button>
-          <Button size="sm" icon={<PlayCircle size={16} />} onClick={handleTestRun}>
-            Test Run
+          <Button 
+            size="sm" 
+            icon={<PlayCircle size={16} />} 
+            onClick={handleTestRun}
+            loading={isTestRunning}
+            disabled={isTestRunning}
+          >
+            {isTestRunning ? 'Testing...' : 'Test Run'}
           </Button>
         </div>
       </div>
@@ -334,10 +398,22 @@ const WorkflowCanvas: React.FC = () => {
                 <div className="p-4">
                   <h4 className="font-medium text-sm mb-3">Actions</h4>
                   <div className="space-y-2">
-                    <Button size="sm" variant="outline" fullWidth>
+                    <Button 
+                      size="sm" 
+                      variant="outline" 
+                      fullWidth
+                      icon={<Settings size={14} />}
+                      onClick={handleNodeConfigure}
+                    >
                       Configure Settings
                     </Button>
-                    <Button size="sm" variant="outline" fullWidth>
+                    <Button 
+                      size="sm" 
+                      variant="outline" 
+                      fullWidth
+                      icon={<PlayCircle size={14} />}
+                      onClick={handleNodeTest}
+                    >
                       Test This Node
                     </Button>
                     <Button 
