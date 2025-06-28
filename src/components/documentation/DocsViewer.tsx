@@ -102,7 +102,7 @@ Learn how to securely authenticate with different services.
           {Object.entries(sections).map(([key, { title }]) => (
             <button
               key={key}
-              className={\`w-full text-left px-3 py-2 rounded-md text-sm transition-colors ${
+              className={`w-full text-left px-3 py-2 rounded-md text-sm transition-colors ${
                 activeSection === key
                   ? 'bg-primary-50 text-primary-700'
                   : 'text-gray-600 hover:bg-gray-50'
@@ -114,7 +114,7 @@ Learn how to securely authenticate with different services.
                 <span>{title}</span>
                 <ChevronRight
                   size={16}
-                  className={\`ml-auto transition-transform ${
+                  className={`ml-auto transition-transform ${
                     activeSection === key ? 'rotate-90' : ''
                   }`}
                 />

@@ -1,4 +1,3 @@
-```typescript
 import React, { useState } from 'react';
 import { Search, Filter, Download, Star } from 'lucide-react';
 import Card from '../common/Card';
@@ -95,7 +94,7 @@ const TemplateLibrary: React.FC = () => {
                   {categories.map(category => (
                     <button
                       key={category}
-                      className={\`w-full text-left px-3 py-2 rounded-md text-sm transition-colors ${
+                      className={`w-full text-left px-3 py-2 rounded-md text-sm transition-colors ${
                         selectedCategory === category
                           ? 'bg-primary-50 text-primary-700'
                           : 'text-gray-600 hover:bg-gray-50'
@@ -114,7 +113,7 @@ const TemplateLibrary: React.FC = () => {
                   {complexityLevels.map(level => (
                     <button
                       key={level}
-                      className={\`w-full text-left px-3 py-2 rounded-md text-sm transition-colors ${
+                      className={`w-full text-left px-3 py-2 rounded-md text-sm transition-colors ${
                         selectedComplexity === level
                           ? 'bg-primary-50 text-primary-700'
                           : 'text-gray-600 hover:bg-gray-50'
@@ -201,4 +200,3 @@ const TemplateLibrary: React.FC = () => {
 };
 
 export default TemplateLibrary;
-```
