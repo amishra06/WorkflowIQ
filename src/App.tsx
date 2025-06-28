@@ -13,6 +13,7 @@ import CustomersPage from './pages/CustomersPage';
 import ResourcesPage from './pages/ResourcesPage';
 import ROICalculatorPage from './pages/ROICalculatorPage';
 import SettingsPage from './pages/SettingsPage';
+import APIDocsPage from './pages/api/APIDocsPage';
 import DashboardLayout from './layouts/DashboardLayout';
 import PatternSuggestionManager from './components/notifications/PatternSuggestionToast';
 
@@ -49,6 +50,7 @@ function App() {
           <Route path="/pricing" element={<PricingPage />} />
           <Route path="/customers" element={<CustomersPage />} />
           <Route path="/resources" element={<ResourcesPage />} />
+          <Route path="/api-docs" element={<APIDocsPage />} />
           <Route path="/roi-calculator" element={<ROICalculatorPage />} />
           <Route path="/login" element={<AuthPage />} />
           <Route path="/register" element={<AuthPage />} />
