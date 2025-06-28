@@ -10,7 +10,7 @@ const WorkflowsPage: React.FC = () => {
         <title>Workflow Builder | WorkflowIQ</title>
       </Helmet>
       
-      <div className="bg-white rounded-lg shadow-sm overflow-hidden h-[calc(100vh-140px)]">
+      <div className="bg-white rounded-lg shadow-sm overflow-hidden h-[calc(100vh-6rem)]">
         <ReactFlowProvider>
           <WorkflowCanvas />
         </ReactFlowProvider>

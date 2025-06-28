@@ -68,7 +68,7 @@ const activities = [
 
 const ActivityTimeline: React.FC = () => {
   return (
-    <Card title="Recent Activity\" className="h-full">
+    <Card title="Recent Activity" className="h-full">
       <div className="space-y-4">
         {activities.map((activity) => (
           <div key={activity.id} className="flex">
