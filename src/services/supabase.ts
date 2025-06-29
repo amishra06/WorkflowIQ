@@ -34,6 +34,10 @@ const handleSupabaseError = (error: any) => {
     if (error.message === 'Auth session missing!') {
       return null;
     }
+    // Don't return an error for expected "session_not_found" state
+    if (error.code === 'session_not_found') {
+      return null;
+    }
     // Handle email confirmation error without logging to console
     if (error.message.includes('Email not confirmed') || 
         error.message.includes('confirmation') ||
@@ -43,7 +47,8 @@ const handleSupabaseError = (error: any) => {
     // Only log unexpected errors
     if (!error.message.includes('Email not confirmed') && 
         !error.message.includes('confirmation') && 
-        error.code !== 'email_not_confirmed') {
+        error.code !== 'email_not_confirmed' &&
+        error.code !== 'session_not_found') {
       console.error('Supabase operation failed:', error);
     }
     return error;
