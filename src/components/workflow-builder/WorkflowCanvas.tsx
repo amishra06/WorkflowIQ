@@ -105,6 +105,11 @@ const WorkflowCanvas: React.FC = () => {
   } | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [isTestRunning, setIsTestRunning] = useState(false);
+  const [workflowName, setWorkflowName] = useState('Email to Task Automation');
+  const [workflowDescription, setWorkflowDescription] = useState('Convert client emails to tasks automatically');
+  const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+  const [showTestResults, setShowTestResults] = useState(false);
+  const [testResults, setTestResults] = useState<any>(null);
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const { screenToFlowPosition } = useReactFlow();
 
@@ -185,21 +190,32 @@ const WorkflowCanvas: React.FC = () => {
   };
 
   const handleSave = async () => {
+    if (nodes.length === 0) {
+      alert('Please add at least one node to save the workflow.');
+      return;
+    }
+
     setIsSaving(true);
     try {
       const workflowData = {
+        id: nanoid(),
+        name: workflowName,
+        description: workflowDescription,
         nodes,
         edges,
-        name: 'Email to Task Automation',
-        description: 'Convert client emails to tasks automatically'
+        status: 'draft',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
       };
+      
       console.log('Saving workflow:', workflowData);
       
       // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise(resolve => setTimeout(resolve, 1500));
       
-      // Show success message (you could add a toast notification here)
-      alert('Workflow saved successfully!');
+      setShowSuccessMessage(true);
+      setTimeout(() => setShowSuccessMessage(false), 3000);
+      
     } catch (error) {
       console.error('Failed to save workflow:', error);
       alert('Failed to save workflow. Please try again.');
@@ -214,15 +230,42 @@ const WorkflowCanvas: React.FC = () => {
       return;
     }
 
+    const triggers = nodes.filter(node => node.data.type?.startsWith('trigger'));
+    const actions = nodes.filter(node => node.data.type?.startsWith('action'));
+
+    if (triggers.length === 0) {
+      alert('Please add at least one trigger to test the workflow.');
+      return;
+    }
+
+    if (actions.length === 0) {
+      alert('Please add at least one action to test the workflow.');
+      return;
+    }
+
     setIsTestRunning(true);
     try {
       console.log('Running test with nodes:', nodes, 'and edges:', edges);
       
-      // Simulate test execution
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // Simulate test execution with realistic results
+      await new Promise(resolve => setTimeout(resolve, 3000));
       
-      // Show test results
-      alert('Test run completed successfully! Check the console for details.');
+      const mockResults = {
+        status: 'success',
+        executionTime: Math.floor(Math.random() * 2000) + 500,
+        nodesExecuted: nodes.length,
+        edgesTraversed: edges.length,
+        results: {
+          triggersActivated: triggers.length,
+          actionsCompleted: actions.length,
+          errors: 0,
+          warnings: Math.floor(Math.random() * 2)
+        }
+      };
+
+      setTestResults(mockResults);
+      setShowTestResults(true);
+      
     } catch (error) {
       console.error('Test run failed:', error);
       alert('Test run failed. Please check your workflow configuration.');
@@ -233,8 +276,23 @@ const WorkflowCanvas: React.FC = () => {
 
   const handleNodeConfigure = () => {
     if (selectedNode) {
-      alert(`Configure settings for node: ${selectedNode}`);
-      // Here you would open a configuration modal or panel
+      const node = nodes.find(n => n.id === selectedNode);
+      if (node) {
+        const config = prompt(`Configure ${node.data.label}:\n\nEnter configuration (JSON format):`, '{}');
+        if (config) {
+          try {
+            JSON.parse(config);
+            setNodes(nds => nds.map(n => 
+              n.id === selectedNode 
+                ? { ...n, data: { ...n.data, config: JSON.parse(config) } }
+                : n
+            ));
+            alert('Node configuration updated successfully!');
+          } catch (error) {
+            alert('Invalid JSON configuration. Please check your syntax.');
+          }
+        }
+      }
     }
   };
 
@@ -242,8 +300,10 @@ const WorkflowCanvas: React.FC = () => {
     if (selectedNode) {
       const node = nodes.find(n => n.id === selectedNode);
       if (node) {
-        alert(`Testing node: ${node.data.label}`);
-        // Here you would test the individual node
+        alert(`Testing ${node.data.label}...`);
+        // Simulate node test
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        alert(`${node.data.label} test completed successfully!`);
       }
     }
   };
@@ -253,14 +313,79 @@ const WorkflowCanvas: React.FC = () => {
 
   return (
     <div className="h-full flex flex-col">
+      {/* Success Message */}
+      {showSuccessMessage && (
+        <div className="fixed top-4 right-4 z-50 bg-success-500 text-white px-6 py-3 rounded-lg shadow-lg">
+          <div className="flex items-center">
+            <CheckCircle2 size={20} className="mr-2" />
+            Workflow saved successfully!
+          </div>
+        </div>
+      )}
+
+      {/* Test Results Modal */}
+      {showTestResults && testResults && (
+        <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+            <h3 className="text-lg font-semibold mb-4">Test Results</h3>
+            <div className="space-y-3">
+              <div className="flex justify-between">
+                <span>Status:</span>
+                <span className="text-success-600 font-medium">{testResults.status}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Execution Time:</span>
+                <span>{testResults.executionTime}ms</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Nodes Executed:</span>
+                <span>{testResults.nodesExecuted}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Triggers Activated:</span>
+                <span>{testResults.results.triggersActivated}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Actions Completed:</span>
+                <span>{testResults.results.actionsCompleted}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Warnings:</span>
+                <span className="text-warning-600">{testResults.results.warnings}</span>
+              </div>
+            </div>
+            <Button
+              variant="primary"
+              fullWidth
+              className="mt-4"
+              onClick={() => setShowTestResults(false)}
+            >
+              Close
+            </Button>
+          </div>
+        </div>
+      )}
+
       <div className="border-b border-gray-200 bg-white p-4 flex justify-between items-center">
-        <div className="flex items-center">
+        <div className="flex items-center flex-1">
           <div className="mr-4">
             <BarChart2 size={24} className="text-primary-500" />
           </div>
-          <div>
-            <h2 className="text-xl font-semibold text-gray-900">Email to Task Automation</h2>
-            <p className="text-sm text-gray-500">Convert client emails to tasks automatically</p>
+          <div className="flex-1">
+            <input
+              type="text"
+              value={workflowName}
+              onChange={(e) => setWorkflowName(e.target.value)}
+              className="text-xl font-semibold text-gray-900 bg-transparent border-none outline-none"
+              placeholder="Workflow Name"
+            />
+            <input
+              type="text"
+              value={workflowDescription}
+              onChange={(e) => setWorkflowDescription(e.target.value)}
+              className="text-sm text-gray-500 bg-transparent border-none outline-none block w-full"
+              placeholder="Workflow Description"
+            />
           </div>
         </div>
         <div className="flex items-center space-x-3">
@@ -370,6 +495,13 @@ const WorkflowCanvas: React.FC = () => {
                         className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-primary-500"
                         defaultValue={selectedNodeData.data.label || ''}
                         placeholder="Enter node name"
+                        onChange={(e) => {
+                          setNodes(nds => nds.map(n => 
+                            n.id === selectedNode 
+                              ? { ...n, data: { ...n.data, label: e.target.value } }
+                              : n
+                          ));
+                        }}
                       />
                     </div>
                     <div>
@@ -380,6 +512,13 @@ const WorkflowCanvas: React.FC = () => {
                         className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-primary-500"
                         rows={3}
                         placeholder="Enter node description..."
+                        onChange={(e) => {
+                          setNodes(nds => nds.map(n => 
+                            n.id === selectedNode 
+                              ? { ...n, data: { ...n.data, description: e.target.value } }
+                              : n
+                          ));
+                        }}
                       />
                     </div>
                     <div>
