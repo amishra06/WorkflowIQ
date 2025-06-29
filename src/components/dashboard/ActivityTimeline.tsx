@@ -132,18 +132,22 @@ const ActivityTimeline: React.FC = () => {
 
         <div className="space-y-4">
           {activities.map((activity) => (
-            <div key={activity.id} className="flex">
-              <div className="flex-shrink-0 mr-3">
+            <div key={activity.id} className="flex items-start space-x-3">
+              <div className="flex-shrink-0">
                 <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center">
                   {activity.icon}
                 </div>
               </div>
-              <div className="flex-grow min-w-0">
-                <div className="flex justify-between items-start">
-                  <h4 className="text-sm font-medium text-gray-900">{activity.title}</h4>
-                  <span className="text-xs text-gray-500 ml-2 flex-shrink-0">{timeAgo(activity.time)}</span>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-start justify-between">
+                  <div className="flex-1 min-w-0">
+                    <h4 className="text-sm font-medium text-gray-900 truncate">{activity.title}</h4>
+                    <p className="text-sm text-gray-600 mt-1 break-words">{activity.description}</p>
+                  </div>
+                  <span className="text-xs text-gray-500 ml-3 flex-shrink-0 whitespace-nowrap">
+                    {timeAgo(activity.time)}
+                  </span>
                 </div>
-                <p className="text-sm text-gray-600 truncate">{activity.description}</p>
               </div>
             </div>
           ))}

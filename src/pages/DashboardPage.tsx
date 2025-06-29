@@ -5,8 +5,11 @@ import AutomationOpportunities from '../components/dashboard/AutomationOpportuni
 import ActiveWorkflows from '../components/dashboard/ActiveWorkflows';
 import ActivityTimeline from '../components/dashboard/ActivityTimeline';
 import SmartSuggestions from '../components/dashboard/SmartSuggestions';
+import { useAuth } from '../context/AuthContext';
 
 const DashboardPage: React.FC = () => {
+  const { user } = useAuth();
+
   return (
     <>
       <Helmet>
@@ -16,9 +19,11 @@ const DashboardPage: React.FC = () => {
       <div className="space-y-8">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
+            <h1 className="text-2xl font-bold text-gray-900">
+              Welcome back{user?.fullName ? `, ${user.fullName}` : ''}!
+            </h1>
             <p className="text-gray-600 mt-1">
-              Welcome back! Here's an overview of your automation performance.
+              Here's an overview of your automation performance and opportunities.
             </p>
           </div>
         </div>
@@ -26,10 +31,10 @@ const DashboardPage: React.FC = () => {
         <MetricsOverview />
         
         <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
-          <div className="xl:col-span-2">
+          <div className="xl:col-span-2 space-y-8">
             <AutomationOpportunities />
           </div>
-          <div className="space-y-6">
+          <div className="space-y-8">
             <SmartSuggestions limit={3} />
             <ActivityTimeline />
           </div>
